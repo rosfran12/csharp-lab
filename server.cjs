@@ -25,7 +25,7 @@ http.createServer(async (req,res) => {
     const filename = path.join(store, crypto.createHash('sha256').update(auth.slice(7)).digest('hex')+'.json');
     try {
       let body = ''; let size = 0;
-      for await (const chunk of req) { size += chunk.length; if (size > 3000000) return send(413, {error:'Archivo demasiado grande'}); body += chunk; }
+      for await (const chunk of req) { size += chunk.length; if (size > 6000000) return send(413, {error:'Archivo demasiado grande'}); body += chunk; }
       const incoming = JSON.parse(body);
       if (!incoming || !incoming.done || typeof incoming.done !== 'object' || Array.isArray(incoming.done)) return send(400, {error:'Progreso inválido'});
       // Operación síncrona y atómica: no se intercalan lecturas/escrituras entre solicitudes.

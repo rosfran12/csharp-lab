@@ -97,6 +97,7 @@ const launch = {executablePath:process.env.CHROMIUM_PATH || (require('node:fs').
   assert.equal(await page.evaluate(()=>data.done.c1&&data.done.u1),true);
   assert.equal(await page.evaluate(()=>data.attempts.c1),3);
   assert.equal(await page.evaluate(()=>data.lab['lab-csharp-1'].unassisted),true);
+  assert.equal(await page.evaluate(()=>data.learning.events.some(e=>e.kind==='pattern')),true);
   await page.getByRole('button',{name:'Laboratorio de código',exact:true}).click();
   assert.equal(await page.locator('#codeEditor').inputValue(),examples[0].solution);
   console.log('PASS cierre/reapertura real de Chromium: migración v1, aciertos, intentos y borrador v2');

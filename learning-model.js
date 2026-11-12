@@ -82,11 +82,16 @@
     if(!diagnosticDone) recommendations.push({kind:'diagnostic',text:'Completá el diagnóstico: todavía faltan respuestas.',target:'diagnostic'});
     for(const [id,x] of Object.entries(report)) if(x.review.due!==null&&x.review.due<=now) recommendations.push({kind:'review',competency:id,text:`Repaso pendiente: ${C.nodes.find(n=>n.id===id).name}.`,target:'reviews'});
     for(const [id,x] of Object.entries(report)) {
-      if(!x.available||x.consolidated)continue;
+      if(!x.available||x.applied)continue;
       const phase=!x.seen?'leer':!x.practiced?'practicar':!x.understood?'evaluar':!x.applied?'aplicar':'esperar el próximo repaso';
       recommendations.push({kind:'unit',competency:id,text:`${C.nodes.find(n=>n.id===id).name}: ${phase}.`,target:'unit'});
       break;
     }
+    if(!recommendations.some(r=>r.kind==='unit')) {
+      const pending=Object.entries(report).filter(([,x])=>x.applied&&!x.consolidated&&x.review.due!==null).sort((a,b)=>a[1].review.due-b[1].review.due)[0];
+      if(pending)recommendations.push({kind:'wait',text:'Próximo repaso de '+C.nodes.find(n=>n.id===pending[0]).name+' programado; no hace falta repetirlo antes.',target:'reviews'});
+    }
+    if(Object.values(report).every(x=>x.applied)&&C.project.some(p=>!events.some(e=>e.kind==='project'&&e.activity===p.id)))recommendations.push({kind:'project',text:'Documentá el siguiente paso del proyecto de Unity y Wwise.',target:'project'});
     return {report,diagnosticDone,diagnosticAnswered:diagnostic.filter(q=>latest.has(q.id)).length,diagnosticTotal:diagnostic.length,recommendations,events,latest};
   }
   function reviewQuestion(input,id,now=Date.now()) {

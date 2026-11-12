@@ -20,6 +20,7 @@ assert.equal(M.summary(history,t).report.operators.available,true);
 assert.equal(M.summary(history,t).report.conditionals.available,false);
 for(const q of qs('variables','application'))add('answer',q.id,t,q.answer);
 assert.equal(M.summary(history,t).report.variables.applied,true);
+assert.equal(M.summary(history,t).recommendations.find(r=>r.kind==='unit').competency,'operators');
 assert.equal(M.reviewQuestion(history,'variables',t),null);
 const q0=qs('variables','review')[0];add('answer',q0.id,t,q0.answer);
 assert.equal(M.summary(history,t).report.variables.review.streak,0);
@@ -49,4 +50,6 @@ assert.equal(M.clean({version:1,events:[{id:'x',at:t,kind:'constructor',activity
 const known=new Set(C.nodes.map(n=>n.id));
 function visit(id,stack=[]){assert.ok(!stack.includes(id));const n=C.nodes.find(n=>n.id===id);for(const r of n.requires){assert.ok(known.has(r));visit(r,[...stack,id]);}}
 for(const n of C.nodes)visit(n.id);
+const sameTime=M.clean({version:1,events:[{id:'z',at:t,order:1,kind:'answer',activity:'variables-diagnostic-1',answer:0},{id:'a',at:t,order:2,kind:'answer',activity:'variables-diagnostic-1',answer:1}]});
+assert.equal(M.summary(sameTime,t).report.variables.diagnosticCorrect,1);
 console.log('PASS motor 2.1: diagnóstico, criterios, errores, prerrequisitos, repasos 1/3/7 días, fallo, unión idempotente y datos inválidos');
