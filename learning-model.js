@@ -14,7 +14,7 @@
     const found = new Map();
     for (const e of input.events) {
       if (!e || typeof e.id !== 'string' || !/^[a-zA-Z0-9_-]{1,90}$/.test(e.id) || !Number.isSafeInteger(e.at) || e.at < 0 || e.at > 8640000000000000 || !Object.hasOwn(activities,e.kind) || !activities[e.kind].includes(e.activity)) continue;
-      const value = {id:e.id,at:e.at,kind:e.kind,activity:e.activity};
+      const value = {id:e.id,at:e.at,order:Number.isSafeInteger(e.order)&&e.order>=0?e.order:0,kind:e.kind,activity:e.activity};
       if (e.kind === 'answer') {
         if (!Number.isInteger(e.answer) || e.answer < 0 || e.answer >= questions.get(e.activity).choices.length) continue;
         value.answer = e.answer;
@@ -27,7 +27,7 @@
       // Resolución determinista de IDs duplicados, independiente del orden de sincronización.
       if (!found.has(e.id) || JSON.stringify(value) > JSON.stringify(found.get(e.id))) found.set(e.id,value);
     }
-    return {version:1,events:[...found.values()].sort((a,b)=>a.at-b.at || a.id.localeCompare(b.id))};
+    return {version:1,events:[...found.values()].sort((a,b)=>a.at-b.at || a.order-b.order || a.id.localeCompare(b.id))};
   }
   function merge(a,b) {
     const byId = new Map();

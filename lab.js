@@ -72,9 +72,10 @@
     x.draft = editor.value; x.attempts++;
     if (result.ok) { x.solved = true; if (!x.hintUsed) x.unassisted = true; } else x.errors++;
     save(); stats(); feedback.textContent = result.message;
+    if(window.LearningUI)LearningUI.record('pattern',selected.id,{ok:result.ok});
   };
-  document.getElementById('showLabHint').onclick = () => { record().hintUsed = true; save(); stats(); hint.hidden = false; hint.textContent = selected.hint; };
-  document.getElementById('showLabSolution').onclick = () => { record().hintUsed = true; save(); stats(); hint.hidden = false; hint.textContent = 'Solución de referencia (no ejecutada):\n'+selected.solution; };
+  document.getElementById('showLabHint').onclick = () => { record().hintUsed = true; save(); stats(); if(window.LearningUI)LearningUI.record('hint',selected.id); hint.hidden = false; hint.textContent = selected.hint; };
+  document.getElementById('showLabSolution').onclick = () => { record().hintUsed = true; save(); stats(); if(window.LearningUI)LearningUI.record('hint',selected.id); hint.hidden = false; hint.textContent = 'Solución de referencia (no ejecutada):\n'+selected.solution; };
   document.getElementById('resetLabDraft').onclick = () => {
     if (!confirm('¿Restaurar el código inicial? Se conserva el historial de intentos y ayuda.')) return;
     record().draft = selected.starter; save(); loadExercise();
@@ -85,5 +86,6 @@
   };
   window.addEventListener('progress-render', stats);
   window.addEventListener('progress-replaced', loadExercise);
+  window.addEventListener('open-code-lab', e => { routeSelect.value=e.detail.route; chooseRoute(); exerciseSelect.value=e.detail.id; loadExercise(); });
   chooseRoute();
 })();

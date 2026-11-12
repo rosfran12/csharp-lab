@@ -34,6 +34,7 @@
         if (!data.lab?.[id]) value.draft = CodeLabData.find(ex => ex.id === id)?.starter || '';
       }
       data.lab = ProgressV2.mergeLab(data.lab, remote.lab);
+      data.learning = LearningModel.merge(data.learning, remote.learning);
       try { localStorage.setItem(KEY, JSON.stringify(data)); } catch {}
       if (JSON.stringify(data) !== previous) render();
       status.textContent = 'Progreso sincronizado. Se actualizará automáticamente mientras la página esté abierta.';
