@@ -50,10 +50,23 @@ La prueba usa `/usr/bin/chromium` cuando existe y, en otro caso, el navegador in
 3. El workflow `.github/workflows/pages.yml` publica al recibir un push a `main`. También se puede ejecutar desde **Actions → Publicar GitHub Pages → Run workflow**.
 4. La URL publicada aparece en el entorno `github-pages` del despliegue.
 
-El artefacto incluye solamente `index.html`; no publica tests ni archivos internos. No requiere configurar una ruta base: el sitio es autocontenido y funciona bajo el subdirectorio del repositorio. La configuración del workflow prepara la publicación; no activa Pages ni publica cambios hasta que se suban y se ejecute en GitHub.
+El artefacto incluye la página, los recursos offline y las prácticas descargables; no publica tests ni archivos internos. No requiere configurar una ruta base: el sitio es autocontenido y funciona bajo el subdirectorio del repositorio. La configuración del workflow prepara la publicación; no activa Pages ni publica cambios hasta que se suban y se ejecute en GitHub.
 
 También puede publicarse en Cloudflare Pages (framework `None`, sin compilación, raíz como salida) o Vercel como sitio estático.
 
-## Limitaciones
+## Capacidades y requisitos de la versión 1.2
 
-Los fragmentos C# son ilustrativos: no se compilan ni ejecutan. Unity y Wwise son contenidos educativos, sin integración con sus runtimes. La aplicación no sincroniza entre dispositivos; exportá e importá el JSON para trasladar el progreso. El progreso depende del navegador y del origen. El archivo descargado funciona sin conexión, pero no hay un service worker que garantice disponibilidad offline del sitio alojado.
+- **Offline:** service worker con caché de la aplicación y prácticas. Requiere una primera carga mediante HTTPS o localhost; no intercepta la API ni guarda claves en caché. El navegador puede eliminar sus datos. El HTML solo ya no incluye todas las funciones: descargá el repositorio completo.
+- **Sincronización:** ejecutá `node server.cjs` (Node 18 o superior). Para acceso entre dispositivos publicalo detrás de HTTPS, con `HOST=0.0.0.0` y un volumen persistente para `LAB_DATA_DIR`. Abrí ese servidor en todos los dispositivos y conectá la misma clave privada generada desde Mi progreso. No hay proveedor externo ni credenciales preconfiguradas. La clave funciona como contraseña y se guarda en el navegador; no la publiques. Respaldá el directorio de datos. Para un servicio público agregá límites de solicitudes y almacenamiento en el proxy.
+- **Conflictos:** se unen aciertos y se conserva el máximo de intentos por ejercicio (los intentos simultáneos no se suman). La página sincroniza al guardar, al recuperar conexión y cada 30 segundos mientras está abierta. El reinicio es local; no borra el servidor. La sincronización recuperará los aciertos anteriores si sigue conectada.
+- **C# real:** descargá `runtime/Program.cs` y `runtime/Lab.csproj` en una carpeta y ejecutá `dotnet run` con .NET SDK 8. No se ejecuta código arbitrario en el servidor ni se simula un compilador.
+- **Unity real:** importá `runtime/LabRuntime.cs`, adjuntalo a un GameObject y asigná un AudioClip para escuchar pasos. Update mueve el objeto según Time.deltaTime.
+- **Wwise real:** el script está dirigido a la integración Unity moderna con `AkUnitySoundEngine`. Instalá el paquete oficial, inicializá el motor, cargá tus SoundBanks y configurá los nombres de evento/RTPC. Activá el símbolo `CSHARP_LAB_WWISE`. En integraciones antiguas la clase puede llamarse `AkSoundEngine`: adaptá el nombre a tu versión. No se incluyen SDK ni SoundBanks propietarios.
+
+GitHub Pages ofrece offline y descargas, pero no ejecuta `server.cjs`: la sincronización necesita alojar el servidor Node. No se ha desplegado ningún servidor ni se han comprobado .NET, Unity o Wwise en este entorno; esos runtimes no están instalados.
+
+## C# Lab 2.0 (propuesta en revisión)
+
+Se agrega **Laboratorio de código**, con editor móvil y 15 prácticas progresivas conectadas con las tres rutas. Usa **validación limitada de patrones**: no es un compilador, no ejecuta C# y puede rechazar otras soluciones válidas. Los cuestionarios y sus porcentajes se conservan. Las métricas de programación se muestran por separado; los borradores, intentos y uso de ayuda se guardan al interactuar y se incluyen al exportar JSON v2. Los archivos anteriores siguen siendo importables.
+
+La sincronización opcional incluye las métricas nuevas; los borradores se trasladan por JSON. Ver [propuesta, investigación y limitaciones](docs/CSHARP-LAB-2-REVIEW.md). Prueba adicional: `node tests/lab-v2.cjs`. No se necesita compilar ni agregar dependencias de producción para usar esta versión en GitHub Pages.

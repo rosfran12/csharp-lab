@@ -22,7 +22,8 @@ jobs:
       - name: Preparar sitio
         run: |
           mkdir -p _site
-          cp index.html _site/index.html
+          cp index.html progress-v2.js lab-data.js lab-validator.js lab.js lab.css features.js sw.js manifest.webmanifest icon.svg _site/
+          cp -R runtime _site/runtime
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site

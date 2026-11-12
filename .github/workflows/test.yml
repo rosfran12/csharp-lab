@@ -1,0 +1,35 @@
+name: Verificar C# Lab
+on:
+  pull_request:
+  push:
+    branches: ['review/**']
+permissions:
+  contents: read
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Instalar herramientas de prueba
+        run: |
+          npm install --prefix /tmp/csharp-lab-tools playwright@1.62.1
+          /tmp/csharp-lab-tools/node_modules/.bin/playwright install --with-deps chromium
+      - name: Pruebas de navegador
+        env:
+          NODE_PATH: /tmp/csharp-lab-tools/node_modules
+          LAB_DATA_DIR: /tmp/csharp-lab-test-data
+        run: |
+          node server.cjs &
+          SERVER_PID=$!
+          trap 'kill "$SERVER_PID"' EXIT
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:8000/ > /dev/null; then break; fi
+            sleep 1
+          done
+          node tests/smoke.cjs
+          node tests/features.cjs
+          node tests/lab-v2.cjs
+          node tests/pages-v2.cjs
