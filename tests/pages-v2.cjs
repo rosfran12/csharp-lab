@@ -4,7 +4,7 @@ const http = require('node:http');
 const fs = require('node:fs/promises');
 const path = require('node:path');
 const assert = require('node:assert/strict');
-const allowed = new Set(['index.html','lab.css','lab.js','lab-data.js','lab-validator.js','progress-v2.js','features.js','sw.js','icon.svg','manifest.webmanifest','runtime/Program.cs','runtime/Lab.csproj','runtime/LabRuntime.cs']);
+const allowed = new Set(['index.html','curriculum-data.js','learning-model.js','learning-ui.js','learning.css','lab.css','lab.js','lab-data.js','lab-validator.js','progress-v2.js','features.js','sw.js','icon.svg','manifest.webmanifest','runtime/Program.cs','runtime/Lab.csproj','runtime/LabRuntime.cs']);
 const server = http.createServer(async(req,res)=>{
  const pathname = new URL(req.url,'http://localhost').pathname;
  if(!pathname.startsWith('/csharp-lab/')){res.writeHead(404);return res.end();}
@@ -33,6 +33,10 @@ const server = http.createServer(async(req,res)=>{
   await page.locator('#validateCode').click();
   assert.match(await page.locator('#labFeedback').innerText(),/Patrón de la práctica validado/);
   assert.equal(await page.evaluate(()=>caches.has('unrelated-cache')),true);
+  await page.getByRole('button',{name:'Aprendizaje progresivo',exact:true}).click();
+  assert.equal(await page.locator('#curriculumMap article').count(),9);
+  await page.getByRole('button',{name:'Diagnóstico inicial',exact:true}).click();
+  assert.equal(await page.locator('#diagnosticQuestions form').count(),6);
   assert.deepEqual(errors,[]);
   console.log('PASS GitHub Pages: laboratorio y validación offline bajo /csharp-lab/, sin backend');
  }finally{if(browser)await browser.close();await new Promise(resolve=>server.close(resolve));}

@@ -29,7 +29,9 @@ jobs:
             if curl --fail --silent http://127.0.0.1:8000/ > /dev/null; then break; fi
             sleep 1
           done
+          node tests/learning-model.cjs
           node tests/smoke.cjs
           node tests/features.cjs
           node tests/lab-v2.cjs
           node tests/pages-v2.cjs
+          node tests/learning-ui.cjs

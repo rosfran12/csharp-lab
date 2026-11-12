@@ -70,3 +70,9 @@ GitHub Pages ofrece offline y descargas, pero no ejecuta `server.cjs`: la sincro
 Se agrega **Laboratorio de código**, con editor móvil y 15 prácticas progresivas conectadas con las tres rutas. Usa **validación limitada de patrones**: no es un compilador, no ejecuta C# y puede rechazar otras soluciones válidas. Los cuestionarios y sus porcentajes se conservan. Las métricas de programación se muestran por separado; los borradores, intentos y uso de ayuda se guardan al interactuar y se incluyen al exportar JSON v2. Los archivos anteriores siguen siendo importables.
 
 La sincronización opcional incluye las métricas nuevas; los borradores se trasladan por JSON. Ver [propuesta, investigación y limitaciones](docs/CSHARP-LAB-2-REVIEW.md). Prueba adicional: `node tests/lab-v2.cjs`. No se necesita compilar ni agregar dependencias de producción para usar esta versión en GitHub Pages.
+
+## C# Lab 2.1 — aprendizaje progresivo
+
+La primera etapa agrega **Aprendizaje progresivo**: mapa con niveles y prerrequisitos, diagnóstico inicial, unidad interactiva de variables/operadores/condicionales, panel de evidencias, repasos espaciados y proyecto guiado de pasos para Unity/Wwise. Los estados se calculan con reglas visibles y respuestas registradas; no son porcentajes de dominio ni una prueba de compilación real.
+
+El progreso anterior se conserva. El JSON v2 incluye ahora el historial `learning`; funciona en GitHub Pages sin servicios externos. La sincronización sigue requiriendo el servidor opcional. Ver [arquitectura, alcance, criterios, pruebas y pendientes](docs/CSHARP-LAB-2.1.md). Pruebas nuevas: `node tests/learning-model.cjs` y `node tests/learning-ui.cjs`.

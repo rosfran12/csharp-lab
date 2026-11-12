@@ -5,10 +5,11 @@ const path = require('node:path');
 const crypto = require('node:crypto');
 const root = __dirname;
 const ProgressV2 = require('./progress-v2.js');
+const LearningModel = require('./learning-model.js');
 const store = path.resolve(process.env.LAB_DATA_DIR || path.join(root, '.lab-data'));
 fs.mkdirSync(store, {recursive:true, mode:0o700});
 const ids = ['c1','c2','c3','c4','c5','u1','u2','u3','u4','u5','a1','a2','a3','a4','a5'];
-const files = new Set(['index.html','features.js','progress-v2.js','lab-data.js','lab-validator.js','lab.js','lab.css','sw.js','manifest.webmanifest','icon.svg','runtime/Program.cs','runtime/Lab.csproj','runtime/LabRuntime.cs']);
+const files = new Set(['index.html','features.js','curriculum-data.js','learning-model.js','learning-ui.js','learning.css','progress-v2.js','lab-data.js','lab-validator.js','lab.js','lab.css','sw.js','manifest.webmanifest','icon.svg','runtime/Program.cs','runtime/Lab.csproj','runtime/LabRuntime.cs']);
 const types = {'.css':'text/css; charset=utf-8','.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.webmanifest':'application/manifest+json','.svg':'image/svg+xml','.cs':'text/plain; charset=utf-8','.csproj':'text/plain; charset=utf-8'};
 http.createServer(async (req,res) => {
   res.setHeader('X-Content-Type-Options','nosniff');
@@ -24,7 +25,7 @@ http.createServer(async (req,res) => {
     const filename = path.join(store, crypto.createHash('sha256').update(auth.slice(7)).digest('hex')+'.json');
     try {
       let body = ''; let size = 0;
-      for await (const chunk of req) { size += chunk.length; if (size > 300000) return send(413, {error:'Archivo demasiado grande'}); body += chunk; }
+      for await (const chunk of req) { size += chunk.length; if (size > 6000000) return send(413, {error:'Archivo demasiado grande'}); body += chunk; }
       const incoming = JSON.parse(body);
       if (!incoming || !incoming.done || typeof incoming.done !== 'object' || Array.isArray(incoming.done)) return send(400, {error:'Progreso inválido'});
       // Operación síncrona y atómica: no se intercalan lecturas/escrituras entre solicitudes.
@@ -34,6 +35,7 @@ http.createServer(async (req,res) => {
         const n = incoming.attempts?.[id];
         if (Number.isSafeInteger(n) && n >= 0) saved.attempts[id] = Math.max(saved.attempts[id] || 0, n);
       }
+      saved.learning = LearningModel.merge(saved.learning, incoming.learning);
       saved.lab = ProgressV2.mergeLab(saved.lab, incoming.lab);
       for (const value of Object.values(saved.lab)) value.draft = ''; // Solo métricas; los borradores se trasladan por JSON.
       fs.writeFileSync(filename+'.tmp', JSON.stringify(saved), {mode:0o600});

@@ -1,6 +1,6 @@
 const PREFIX = 'csharp-lab-shell-' + encodeURIComponent(self.registration.scope) + '-';
-const CACHE = PREFIX + 'v3';
-const ASSETS = ['./', './index.html', './features.js', './progress-v2.js', './lab-data.js', './lab-validator.js', './lab.js', './lab.css', './manifest.webmanifest', './icon.svg', './runtime/Program.cs', './runtime/Lab.csproj', './runtime/LabRuntime.cs'];
+const CACHE = PREFIX + 'v4';
+const ASSETS = ['./', './index.html', './features.js', './curriculum-data.js', './learning-model.js', './learning-ui.js', './learning.css', './progress-v2.js', './lab-data.js', './lab-validator.js', './lab.js', './lab.css', './manifest.webmanifest', './icon.svg', './runtime/Program.cs', './runtime/Lab.csproj', './runtime/LabRuntime.cs'];
 self.addEventListener('install', event => event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(ASSETS)).then(() => self.skipWaiting())));
 self.addEventListener('activate', event => event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(key => key.startsWith(PREFIX) && key !== CACHE).map(key => caches.delete(key)))).then(() => self.clients.claim())));
 self.addEventListener('fetch', event => {
